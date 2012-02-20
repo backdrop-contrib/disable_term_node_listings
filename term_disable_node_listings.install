@@ -1,0 +1,32 @@
+<?php
+/**
+ * @file
+ * Install, uninstall and enable functions for the Term Disable Listing module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function term_disable_node_listings_install() {
+  // No-op.
+}
+
+/**
+ * Implements hook_enable().
+ */
+function term_disable_node_listings_enable() {
+  drupal_set_message(t('To disable a node listings for terms in a selected vocabulary, edit a vocabulary from the <a href="@url">taxonomy page</a>.', array('@url' => url('admin/structure/taxonomy'))));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function term_disable_node_listings_uninstall() {
+  // Delete term disable list variables, but we can only do it if we know the vocab terms
+  if (function_exists('taxonomy_get_vocabularies')) {
+    $vocabularies = taxonomy_get_vocabularies();
+    foreach ($vocabularies as $vocab) {
+      variable_del('term_disable_node_listings_' . $vocab->machine_name);
+    }
+  }
+}
