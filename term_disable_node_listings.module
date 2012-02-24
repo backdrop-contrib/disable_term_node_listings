@@ -1,10 +1,16 @@
 <?php
+/**
+ * @file
+ * The Term Disable Node Listings module allows a user to selectively
+ * disable the node listing on taxonomy term pages on a vocabulary basis
+ * on the edit vocabulary page.
+ */
 
 /**
  * Implements hook_menu_alter().
  */
 function term_disable_node_listings_menu_alter(&$items) {
-  //Take over from the taxonomy module
+  // Take over from the taxonomy module.
   $items['taxonomy/term/%taxonomy_term'] = array(
     'page callback' => 'term_disable_node_listings_term_page',
     'page arguments' => array(2),
@@ -15,22 +21,23 @@ function term_disable_node_listings_menu_alter(&$items) {
 /**
  * Menu callback; displays all nodes associated with a term.
  *
- * @param $term
+ * @param object $term
  *   The taxonomy term.
- * @return
+ *
+ * @return string
  *   The page content.
  */
 function term_disable_node_listings_term_page($term) {
-  //Check to see if the term that this vocabular belongs to has its listings disabled
+  // Check if the term that this vocabulary belongs to has listings disabled.
   $term_list_disabled = variable_get('term_disable_node_listings_' . $term->vocabulary_machine_name, FALSE);
 
   if ($term_list_disabled) {
-    //Set the title and return all the field data
+    // Set the title and return all the field data.
     drupal_set_title($term->name);
     return taxonomy_term_view($term, 'full');
   }
   else {
-    //We have to pull in taxonomy's pages include so we can call its function
+    // We have to pull in taxonomy's pages include so we can call its function.
     module_load_include('inc', 'taxonomy', 'taxonomy.pages');
     return taxonomy_term_page($term);
   }
@@ -39,7 +46,7 @@ function term_disable_node_listings_term_page($term) {
 /**
  * Implements hook_form_alter().
  *
- * Used to add toggle checkbox to the vocabulary edit pages
+ * Used to add toggle checkbox to the vocabulary edit pages.
  *
  */
 function term_disable_node_listings_form_alter(&$form, $form_state, $form_id) {
@@ -47,7 +54,7 @@ function term_disable_node_listings_form_alter(&$form, $form_state, $form_id) {
     $vocab_machine_name = $form['#vocabulary']->machine_name;
     $term_list_disabled = variable_get('term_disable_node_listings_' . $vocab_machine_name, FALSE);
 
-    // Status toggle switch
+    // Status toggle switch.
     $form['term_disable_node_listings_status'] = array(
       '#type' => 'checkbox',
       '#weight' => 3,
@@ -64,12 +71,12 @@ function term_disable_node_listings_form_alter(&$form, $form_state, $form_id) {
  * Save the status of the taxonomy term to the database.
  */
 function _term_disable_node_listings_submit_handler($form, &$form_state) {
-  //Machine name is not available when we are deeting a term
-  //so don't try to save the variable
+  // Machine name is not available when we are deeting a term
+  // so don't try to save the variable.
   if (isset($form_state['values']['machine_name'])) {
     $vocab_machine_name = $form_state['values']['machine_name'];
-  
-    //Store the status of this vocabulary based on user input
+
+    // Store the status of this vocabulary based on user input.
     $is_disabled = $form_state['values']['term_disable_node_listings_status'];
     variable_set('term_disable_node_listings_' . $vocab_machine_name, $is_disabled);
   }
@@ -79,7 +86,7 @@ function _term_disable_node_listings_submit_handler($form, &$form_state) {
  * Implements hook_taxonomy_vocabulary_delete().
  */
 function term_disable_node_listings_taxonomy_vocabulary_delete($vocabulary) {
-  //If the vocabulary gets deleted, clean up our variable as well
+  // If the vocabulary gets deleted, clean up our variable as well.
   variable_del('term_disable_node_listings_' . $vocabulary->machine_name);
 }
 
@@ -87,7 +94,7 @@ function term_disable_node_listings_taxonomy_vocabulary_delete($vocabulary) {
  * Implements hook_taxonomy_vocabulary_update().
  */
 function term_disable_node_listings_taxonomy_vocabulary_update($vocabulary) {
-  //If the vocabulary machine name changed
-  //delete the variable associated with the old name so we don't clutted the DB
+  // If the vocabulary machine name changed
+  // delete the variable associated with the old name.
   variable_del('term_disable_node_listings_' . $vocabulary->old_machine_name);
 }
