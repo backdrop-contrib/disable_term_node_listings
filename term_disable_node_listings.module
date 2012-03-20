@@ -33,7 +33,7 @@ function term_disable_node_listings_term_page($term) {
 
   if ($term_list_disabled) {
     // Set the title and return all the field data.
-    drupal_set_title($term->name);
+    drupal_set_title(check_plain($term->name));
     return taxonomy_term_view($term, 'full');
   }
   else {
