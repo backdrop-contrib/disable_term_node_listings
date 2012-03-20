@@ -47,7 +47,6 @@ function term_disable_node_listings_term_page($term) {
  * Implements hook_form_alter().
  *
  * Used to add toggle checkbox to the vocabulary edit pages.
- *
  */
 function term_disable_node_listings_form_alter(&$form, $form_state, $form_id) {
   if ($form_id == 'taxonomy_form_vocabulary' && !isset($form_state['confirm_delete'])) {
