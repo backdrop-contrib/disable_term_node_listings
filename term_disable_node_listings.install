@@ -8,7 +8,7 @@
  * Implements hook_enable().
  */
 function term_disable_node_listings_enable() {
-  drupal_set_message(st('To disable a node listings for terms in a selected vocabulary, edit a vocabulary from the !url.', array('!url' => l(st('taxonomy page', 'admin/structure/taxonomy')))));
+  drupal_set_message(st('To disable a node listings for terms in a selected vocabulary, edit a vocabulary from the !url.', array('!url' => l(st('taxonomy page'), 'admin/structure/taxonomy'))));
 }
 
 /**
