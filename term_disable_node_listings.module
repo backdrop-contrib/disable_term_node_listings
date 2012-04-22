@@ -33,7 +33,7 @@ function term_disable_node_listings_term_page($term) {
 
   if ($term_list_disabled) {
     // Set the title and return all the field data.
-    drupal_set_title(check_plain($term->name));
+    drupal_set_title($term->name);
     return taxonomy_term_view($term, 'full');
   }
   else {
@@ -95,5 +95,7 @@ function term_disable_node_listings_taxonomy_vocabulary_delete($vocabulary) {
 function term_disable_node_listings_taxonomy_vocabulary_update($vocabulary) {
   // If the vocabulary machine name changed
   // delete the variable associated with the old name.
-  variable_del('term_disable_node_listings_' . $vocabulary->old_machine_name);
+  if($vocabulary->old_machine_name != $vocabulary->machine_name) {
+    variable_del('term_disable_node_listings_' . $vocabulary->old_machine_name);
+  }
 }
