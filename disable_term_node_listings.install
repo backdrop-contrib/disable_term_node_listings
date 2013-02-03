@@ -12,6 +12,33 @@ function disable_term_node_listings_enable() {
 }
 
 /**
+ * Implements hook_requirements().
+ */
+function disable_term_node_listings_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
+  
+  if ($phase == 'runtime') {
+    $requirements['disable_term_node_listings_page_control'] = array(
+      'title' => $t('Disable Term Node Listings'),
+      'severity' => REQUIREMENT_OK,
+      'value' => $t('Working'),
+      'description' => $t('Other modules that control term pages can block this module from working'),
+    );
+
+    $result = db_query("SELECT * from {menu_router} where {path} = 'taxonomy/term/%'");
+    foreach ($result as $record) {
+      if ($record->page_callback != 'disable_term_node_listings_term_page') {
+        $requirements['disable_term_node_listings_page_control']['value'] = $t('Blocked by') . ': ' . $record->page_callback;
+        $requirements['disable_term_node_listings_page_control']['severity'] = REQUIREMENT_ERROR;
+      }
+    }
+  }
+  return $requirements;
+}
+
+/**
  * Implements hook_uninstall().
  */
 function disable_term_node_listings_uninstall() {
