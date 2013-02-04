@@ -1,0 +1,3 @@
+Disable Term Node Term Listings 7.x-1.x
+--------------------------------
+#1828208 by mmilo: Allow accessing Taxonomy term pages to return a 404/403

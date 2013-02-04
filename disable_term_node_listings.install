@@ -18,7 +18,7 @@ function disable_term_node_listings_requirements($phase) {
   $requirements = array();
   // Ensure translations don't break during installation.
   $t = get_t();
-  
+
   if ($phase == 'runtime') {
     $requirements['disable_term_node_listings_page_control'] = array(
       'title' => $t('Disable Term Node Listings'),
@@ -42,12 +42,24 @@ function disable_term_node_listings_requirements($phase) {
  * Implements hook_uninstall().
  */
 function disable_term_node_listings_uninstall() {
-  // Delete term disable list variables,
-  // but we can only do it if we know the vocab terms from the taxonomy module.
-  if (function_exists('taxonomy_get_vocabularies')) {
-    $vocabularies = taxonomy_get_vocabularies();
-    foreach ($vocabularies as $vocab) {
-      variable_del('disable_term_node_listings_' . $vocab->machine_name);
+  // Delete term disable listing variables.
+  db_delete('variable')
+      ->condition('name', db_like('disable_term_node_listings_') . '%', 'LIKE')
+      ->execute();
+}
+
+/**
+ * Converting active value of disabled listing to 'hide_listings' and inactive to 'default'.
+ */
+function disable_term_node_listings_update_7100() {
+  $result = db_query("SELECT * from {variable} WHERE {name} like 'disable_term_node_listings_%'");
+  foreach ($result as $record) {
+    $value = unserialize($record->value);
+    if ($value == 1) {
+      variable_set($record->name, 'hide_listing');
+    }
+    elseif ($value == 0) {
+      variable_set($record->name, 'default');
     }
   }
 }
