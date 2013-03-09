@@ -36,18 +36,25 @@ function disable_term_node_listings_term_page($term) {
       // Set the title and return all the field data.
       drupal_set_title($term->name);
       return taxonomy_term_view($term, 'full');
-      break;
+
+    break;
+
     case '404':
       return MENU_NOT_FOUND;
-      break;
+
+    break;
+
     case '403':
       return MENU_ACCESS_DENIED;
-      break;
+
+    break;
+
     default:
-      // We have to pull in taxonomy's pages include so we can call its function.
+      // We have to pull in taxonomy's pages include to call its function.
       module_load_include('inc', 'taxonomy', 'taxonomy.pages');
       return taxonomy_term_page($term);
-      break;
+
+    break;
   }
 }
 
@@ -72,7 +79,7 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
         'default' => t('Use default node listings'),
         'hide_listing' => t('Disable node listing for all terms'),
         '404' => t('Display 404 page'),
-        '403' => t('Display 403 page')
+        '403' => t('Display 403 page'),
       ),
     );
 
