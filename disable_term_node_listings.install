@@ -27,7 +27,7 @@ function disable_term_node_listings_requirements($phase) {
       'description' => $t('Other modules that control term pages can block this module from working'),
     );
 
-    $result = db_query("SELECT * from {menu_router} where {path} = 'taxonomy/term/%'");
+    $result = db_query("SELECT * from {menu_router} where path = :path", array(':path' => 'taxonomy/term/%'));
     foreach ($result as $record) {
       if ($record->page_callback != 'disable_term_node_listings_term_page') {
         $requirements['disable_term_node_listings_page_control']['value'] = $t('Blocked by') . ': ' . $record->page_callback;
