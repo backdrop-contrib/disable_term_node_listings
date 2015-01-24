@@ -1,3 +1,7 @@
+Disable Term Node Term Listings 7.x-1.x
+--------------------------------
+#1936304 by akeemw, OPIN: Allow this module to work in conjunction with i18n_taxonomy, views
+
 Disable Term Node Term Listings 7.x-1.2
 --------------------------------
 #1955320 by nmudgal: Fix query syntax for status report

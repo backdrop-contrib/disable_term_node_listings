@@ -6,6 +6,17 @@
  * on the edit vocabulary page.
  */
 
+ /**
+ * Implements hook_module_implements_alter().
+ */
+function disable_term_node_listings_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'menu_alter') {
+    $group = $implementations['disable_term_node_listings'];
+    unset($implementations['disable_term_node_listings']);
+    $implementations['disable_term_node_listings'] = $group;
+  }
+}
+
 /**
  * Implements hook_menu_alter().
  */
@@ -31,8 +42,23 @@ function disable_term_node_listings_term_page($term) {
   // Check if the term that this vocabulary belongs to has listings disabled.
   $disable_status = variable_get('disable_term_node_listings_' . $term->vocabulary_machine_name, 'default');
 
+  //@todo Cache these arrays since they are very static, only new module additions can change the list
+  $term_hooks = _disable_term_node_listings_retrieve_term_menu_hooks();
+  $heaviest_term_hook = _disable_term_node_listings_get_heaviest_term_menu_hook($term_hooks);
+
+  //If we have a callback available in the heaviest term menu hook that needs files loaded
+  //let's get it loaded so that the function is available to be called.
+  if($disable_status == 'default') {
+    _disable_term_node_listings_get_heaviest_term_menu_hook_load_file($heaviest_term_hook);
+  }
+
   switch ($disable_status) {
     case 'hide_listing':
+      //Let i18n translate the term if it exists
+      if(module_exists(i18n_taxonomy) && function_exists('i18n_taxonomy_localize_terms')) {
+        $term = i18n_taxonomy_localize_terms($term);
+      }
+
       // Set the title and return all the field data.
       drupal_set_title($term->name);
       return taxonomy_term_view($term, 'full');
@@ -50,13 +76,101 @@ function disable_term_node_listings_term_page($term) {
     break;
 
     default:
-      // We have to pull in taxonomy's pages include to call its function.
-      module_load_include('inc', 'taxonomy', 'taxonomy.pages');
-      return taxonomy_term_page($term);
+      if (!empty($heaviest_term_hook) && function_exists($heaviest_term_hook['page callback'])) {
+        $page_callback = $heaviest_term_hook['page callback'];
+        //If the page has no arguments assume that it only wants the term (inheriting from Taxonomy module).
+        $page_args = isset($heaviest_term_hook['page arguments']) ? $heaviest_term_hook['page arguments'] : array($term);
+
+        // Find page arguments that are numbers and turn them into their path
+        // value to pass into the function correctly.
+        foreach ($page_args as &$page_arg) {
+          if(is_numeric($page_arg)) {
+            $page_arg = arg($page_arg);
+          }
+        }
+
+        return call_user_func_array($page_callback, $page_args);
+      }
+      else {
+        // We have to pull in taxonomy's pages include to call its function.
+        module_load_include('inc', 'taxonomy', 'taxonomy.pages');
+        return taxonomy_term_page($term);
+      }
 
     break;
   }
 }
+
+
+/**
+* _disable_term_node_listings_retrieve_term_menu_hooks function.
+*
+* @access private
+* @return void
+*/
+function _disable_term_node_listings_retrieve_term_menu_hooks() {
+  //Get list of other modules trying to take over this page and play nice
+  $modules = module_implements('menu_alter');
+  $term_hooks = array();
+
+  foreach ($modules as $module) {
+    $function = $module . '_menu_alter';
+    $items = array();
+
+    if(function_exists($function)) {
+      //Extract the menu items from all modules so we can find which ones have term alters
+      call_user_func($function, &$items);
+
+      if(isset($items['taxonomy/term/%taxonomy_term'])) {
+        if($module != 'disable_term_node_listings') {
+          $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
+        }
+      }
+      //Views uses a different argument
+      else if (isset($items['taxonomy/term/%views_arg'])) {
+        $term_hooks[$module] = $items['taxonomy/term/%views_arg'];
+      }
+    }
+  }
+
+  return $term_hooks;
+}
+
+
+/**
+* _disable_term_node_listings_get_heaviest_term_menu_hook function.
+* Get the heaviest term_menu_alter hook to determine which one should be used
+*
+* @access private
+* @param mixed $term_menu_hooks
+* @return void
+*/
+function _disable_term_node_listings_get_heaviest_term_menu_hook($term_menu_hooks) {
+  $heaviest_term_hook = end($term_menu_hooks);
+  //$heaviest_term_hook = reset($term_menu_hooks);
+  $heaviest_term_hook['#module'] = key($term_menu_hooks);
+
+  return $heaviest_term_hook;
+}
+
+
+/**
+* _disable_term_node_listings_get_heaviest_term_menu_hook_load_file function.
+*
+* @access private
+* @param mixed $term_menu_hook
+* @return void
+*/
+function _disable_term_node_listings_get_heaviest_term_menu_hook_load_file($term_menu_hook) {
+  if(!empty($term_menu_hook) && !empty($term_menu_hook['file'])) {
+    $file = DRUPAL_ROOT . '/' . $term_menu_hook['file path'] . '/'. $term_menu_hook['file'];
+
+    if (is_file($file)) {
+      require_once $file;
+    }
+  }
+}
+
 
 /**
  * Implements hook_form_alter().
