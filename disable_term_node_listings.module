@@ -119,7 +119,7 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
 
     if(function_exists($function)) {
       //Extract the menu items from all modules so we can find which ones have term alters
-      call_user_func($function, &$items);
+      call_user_func_array($function, array(&$items));
 
       if(isset($items['taxonomy/term/%taxonomy_term'])) {
         if($module != 'disable_term_node_listings') {
