@@ -6,7 +6,7 @@
  * on the edit vocabulary page.
  */
 
- /**
+/**
  * Implements hook_module_implements_alter().
  */
 function disable_term_node_listings_module_implements_alter(&$implementations, $hook) {
@@ -42,20 +42,20 @@ function disable_term_node_listings_term_page($term) {
   // Check if the term that this vocabulary belongs to has listings disabled.
   $disable_status = variable_get('disable_term_node_listings_' . $term->vocabulary_machine_name, 'default');
 
-  //@todo Cache these arrays since they are very static, only new module additions can change the list
   $term_hooks = _disable_term_node_listings_retrieve_term_menu_hooks();
   $heaviest_term_hook = _disable_term_node_listings_get_heaviest_term_menu_hook($term_hooks);
 
-  //If we have a callback available in the heaviest term menu hook that needs files loaded
-  //let's get it loaded so that the function is available to be called.
-  if($disable_status == 'default') {
+  // If we have a callback available in the heaviest term menu hook that needs
+  // files loaded let's get it loaded so that the function is available
+  // to be called.
+  if ($disable_status == 'default') {
     _disable_term_node_listings_get_heaviest_term_menu_hook_load_file($heaviest_term_hook);
   }
 
   switch ($disable_status) {
     case 'hide_listing':
-      //Let i18n translate the term if it exists
-      if(module_exists(i18n_taxonomy) && function_exists('i18n_taxonomy_localize_terms')) {
+      // Let i18n translate the term if it exists.
+      if (module_exists(i18n_taxonomy) && function_exists('i18n_taxonomy_localize_terms')) {
         $term = i18n_taxonomy_localize_terms($term);
       }
 
@@ -78,13 +78,14 @@ function disable_term_node_listings_term_page($term) {
     default:
       if (!empty($heaviest_term_hook) && function_exists($heaviest_term_hook['page callback'])) {
         $page_callback = $heaviest_term_hook['page callback'];
-        //If the page has no arguments assume that it only wants the term (inheriting from Taxonomy module).
+        // If the page has no arguments assume that it only wants the term
+        // (inheriting from Taxonomy module).
         $page_args = isset($heaviest_term_hook['page arguments']) ? $heaviest_term_hook['page arguments'] : array($term);
 
         // Find page arguments that are numbers and turn them into their path
         // value to pass into the function correctly.
         foreach ($page_args as &$page_arg) {
-          if(is_numeric($page_arg)) {
+          if (is_numeric($page_arg)) {
             $page_arg = arg($page_arg);
           }
         }
@@ -98,18 +99,20 @@ function disable_term_node_listings_term_page($term) {
       }
 
     break;
+
   }
 }
 
 
 /**
-* _disable_term_node_listings_retrieve_term_menu_hooks function.
-*
-* @access private
-* @return void
-*/
+ * Get list of other modules trying to take over this page and play nice.
+ *
+ * @access private
+ *
+ * @return array $term_hooks
+ *   List of menu_alter_hooks that take over the term page.
+ */
 function _disable_term_node_listings_retrieve_term_menu_hooks() {
-  //Get list of other modules trying to take over this page and play nice
   $modules = module_implements('menu_alter');
 
   $term_hooks = array();
@@ -122,23 +125,24 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
       $function = $module . '_menu_alter';
       $items = array();
 
-      if(function_exists($function)) {
-        //Extract the menu items from all modules so we can find which ones have term alters
+      if (function_exists($function)) {
+        // Extract the menu items from all modules so we can find
+        // which ones have term alters.
         $function($items);
 
-        if(isset($items['taxonomy/term/%taxonomy_term'])) {
-          if($module != 'disable_term_node_listings') {
+        if (isset($items['taxonomy/term/%taxonomy_term'])) {
+          if ($module != 'disable_term_node_listings') {
             $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
           }
         }
-        //Views uses a different argument
-        else if (isset($items['taxonomy/term/%views_arg'])) {
+        // Views uses a different argument.
+        elseif (isset($items['taxonomy/term/%views_arg'])) {
           $term_hooks[$module] = $items['taxonomy/term/%views_arg'];
         }
       }
     }
 
-    //Store our findings in cache
+    // Store our findings in cache.
     cache_set('disable_term_node_listings_term_menu_hooks', $term_hooks, 'cache');
   }
 
@@ -147,16 +151,17 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
 
 
 /**
-* _disable_term_node_listings_get_heaviest_term_menu_hook function.
-* Get the heaviest term_menu_alter hook to determine which one should be used
-*
-* @access private
-* @param mixed $term_menu_hooks
-* @return void
-*/
+ * Get the heaviest term_menu_alter hook to determine which one should be used
+ *
+ * @access private
+ *
+ * @param array $term_menu_hooks
+ *   List of menu_alter_hooks that take over the term page.
+ * @return array $heaviest_term_hook
+ *   The last hook in order. This is the active menu alter hook.
+ */
 function _disable_term_node_listings_get_heaviest_term_menu_hook($term_menu_hooks) {
   $heaviest_term_hook = end($term_menu_hooks);
-  //$heaviest_term_hook = reset($term_menu_hooks);
   $heaviest_term_hook['#module'] = key($term_menu_hooks);
 
   return $heaviest_term_hook;
@@ -164,15 +169,16 @@ function _disable_term_node_listings_get_heaviest_term_menu_hook($term_menu_hook
 
 
 /**
-* _disable_term_node_listings_get_heaviest_term_menu_hook_load_file function.
-*
-* @access private
-* @param mixed $term_menu_hook
-* @return void
-*/
+ * Load include files of the the module whose function we will run.
+ *
+ * @access private
+ *
+ * @param array $term_menu_hook
+ *   Contents of a menu alter hook for a term page.
+ */
 function _disable_term_node_listings_get_heaviest_term_menu_hook_load_file($term_menu_hook) {
-  if(!empty($term_menu_hook) && !empty($term_menu_hook['file'])) {
-    $file = DRUPAL_ROOT . '/' . $term_menu_hook['file path'] . '/'. $term_menu_hook['file'];
+  if (!empty($term_menu_hook) && !empty($term_menu_hook['file'])) {
+    $file = DRUPAL_ROOT . '/' . $term_menu_hook['file path'] . '/' . $term_menu_hook['file'];
 
     if (is_file($file)) {
       require_once $file;
