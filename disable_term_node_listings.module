@@ -111,26 +111,35 @@ function disable_term_node_listings_term_page($term) {
 function _disable_term_node_listings_retrieve_term_menu_hooks() {
   //Get list of other modules trying to take over this page and play nice
   $modules = module_implements('menu_alter');
+
   $term_hooks = array();
 
-  foreach ($modules as $module) {
-    $function = $module . '_menu_alter';
-    $items = array();
+  if ($term_hooks_cache = cache_get('disable_term_node_listings_term_menu_hooks')) {
+    $term_hooks = $term_hooks_cache->data;
+  }
+  else {
+    foreach ($modules as $module) {
+      $function = $module . '_menu_alter';
+      $items = array();
 
-    if(function_exists($function)) {
-      //Extract the menu items from all modules so we can find which ones have term alters
-      call_user_func_array($function, array(&$items));
+      if(function_exists($function)) {
+        //Extract the menu items from all modules so we can find which ones have term alters
+        $function($items);
 
-      if(isset($items['taxonomy/term/%taxonomy_term'])) {
-        if($module != 'disable_term_node_listings') {
-          $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
+        if(isset($items['taxonomy/term/%taxonomy_term'])) {
+          if($module != 'disable_term_node_listings') {
+            $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
+          }
+        }
+        //Views uses a different argument
+        else if (isset($items['taxonomy/term/%views_arg'])) {
+          $term_hooks[$module] = $items['taxonomy/term/%views_arg'];
         }
       }
-      //Views uses a different argument
-      else if (isset($items['taxonomy/term/%views_arg'])) {
-        $term_hooks[$module] = $items['taxonomy/term/%views_arg'];
-      }
     }
+
+    //Store our findings in cache
+    cache_set('disable_term_node_listings_term_menu_hooks', $term_hooks, 'cache');
   }
 
   return $term_hooks;
