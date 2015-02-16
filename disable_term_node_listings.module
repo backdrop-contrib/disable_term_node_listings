@@ -151,12 +151,13 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
 
 
 /**
- * Get the heaviest term_menu_alter hook to determine which one should be used
+ * Get the heaviest term_menu_alter hook to determine which one should be used.
  *
  * @access private
  *
  * @param array $term_menu_hooks
  *   List of menu_alter_hooks that take over the term page.
+ *
  * @return array $heaviest_term_hook
  *   The last hook in order. This is the active menu alter hook.
  */
