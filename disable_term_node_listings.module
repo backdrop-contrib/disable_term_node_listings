@@ -55,7 +55,7 @@ function disable_term_node_listings_term_page($term) {
   switch ($disable_status) {
     case 'hide_listing':
       // Let i18n translate the term if it exists.
-      if (module_exists(i18n_taxonomy) && function_exists('i18n_taxonomy_localize_terms')) {
+      if (module_exists('i18n_taxonomy') && function_exists('i18n_taxonomy_localize_terms')) {
         $term = i18n_taxonomy_localize_terms($term);
       }
 
