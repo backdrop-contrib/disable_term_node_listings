@@ -8,7 +8,7 @@
  * Implements hook_enable().
  */
 function disable_term_node_listings_enable() {
-  drupal_set_message(st('To disable a node listings for terms in a selected vocabulary, edit a vocabulary from the !url.', array('!url' => l(st('taxonomy page'), 'admin/structure/taxonomy'))));
+  backdrop_set_message(st('To disable a node listings for terms in a selected vocabulary, edit a vocabulary from the !url.', array('!url' => l(st('taxonomy page'), 'admin/structure/taxonomy'))));
 }
 
 /**
@@ -39,29 +39,39 @@ function disable_term_node_listings_requirements($phase) {
 }
 
 /**
- * Implements hook_uninstall().
+ * Implements hook_install().
+ *
  */
-function disable_term_node_listings_uninstall() {
-  // Delete term disable listing variables.
-  db_delete('variable')
-      ->condition('name', db_like('disable_term_node_listings_') . '%', 'LIKE')
-      ->execute();
+function disable_term_node_listings_install() {
+  foreach (taxonomy_get_vocabularies() as $vocabulary) {
+    config_set('taxonomy.vocabulary.' . $vocabulary->machine_name, 'settings.disable_node_listings', 0);
+  }
 }
 
 /**
- * Converting booleans to new named values.
- * 
- * Disabled listing to 'hide_listings' and inactive to 'default'.
+ * Implements hook_uninstall().
  */
-function disable_term_node_listings_update_7100() {
-  $result = db_query("SELECT * from {variable} WHERE {name} like 'disable_term_node_listings_%'");
-  foreach ($result as $record) {
-    $value = unserialize($record->value);
-    if ($value == 1) {
-      variable_set($record->name, 'hide_listing');
-    }
-    elseif ($value == 0) {
-      variable_set($record->name, 'default');
-    }
+function disable_term_node_listings_uninstall() {
+  foreach (taxonomy_get_vocabularies() as $vocabulary) {
+    $config = config('taxonomy.vocabulary.' . $vocabulary->machine_name);
+    $config->clear('settings.disable_node_listings');
+    $config->save();
   }
+}
+
+/**
+ * Update variables to config and remove them.
+ */
+function disable_term_node_listings_update_1000() {
+  foreach (taxonomy_get_vocabularies() as $vocabulary) {
+    config_set('taxonomy.vocabulary.' . $vocabulary->machine_name, 'settings.disable_node_listings', update_variable_get('disable_term_node_listings_' . $vocabulary->machine_name, 0));
+    update_variable_del('disable_term_node_listings_' . $vocabulary->machine_name);
+  }
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function disable_term_node_listings_update_last_removed() {
+  return 7100;
 }

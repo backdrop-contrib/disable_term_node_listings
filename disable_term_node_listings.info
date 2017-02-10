@@ -1,5 +1,6 @@
 name = Disable Term Node Listings
 description = Disable the node listings on taxonomy term pages in selected vocabularies
-core = 7.x
+type = module
+backdrop = 1.x
 
 dependencies[] = taxonomy
