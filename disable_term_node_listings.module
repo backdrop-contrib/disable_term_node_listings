@@ -198,11 +198,24 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
     $vocab_machine_name = $form['#vocabulary']->machine_name;
     $disable_status = config_get('taxonomy.vocabulary.' . $vocab_machine_name, 'settings.disable_node_listings');
 
-    // Status toggle switch.
-    $form['disable_term_node_listings_status'] = array(
-      '#type' => 'radios',
-      '#weight' => 3,
+    // Add our vertical tabs js.
+    $path = backdrop_get_path('module', 'disable_term_node_listings') . '/js/disable_term_node_listings.js';
+    $form['additional_settings']['#attached']['js'][] = $path;
+
+    $form['disable_term_node_listings'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
       '#title' => t('Node listings'),
+      '#weight' => 5,
+      '#tree' => TRUE,
+      '#group' => 'additional_settings',
+    );
+
+    // Status toggle switch.
+    $form['disable_term_node_listings']['status'] = array(
+      '#type' => 'radios',
+      '#collapsible' => TRUE,
+      '#weight' => 3,
       '#description' => t('This field controls the display of all terms in this vocabulary.'),
       '#default_value' => $disable_status,
       '#options' => array(
@@ -211,6 +224,7 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
         '404' => t('Display 404 page'),
         '403' => t('Display 403 page'),
       ),
+      //'#attributes' => array('class' => array('node-listings-option')),
     );
 
     $form['#submit'][] = '_disable_term_node_listings_submit_handler';
@@ -218,16 +232,16 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Save the status of the taxonomy term to the database.
+ * Save the status of the taxonomy term to configuration.
  */
 function _disable_term_node_listings_submit_handler($form, &$form_state) {
-  // Machine name is not available when we are deleting a term
-  // so don't try to save the config.
+  // Machine name is not available when we are deleting a term so don't try to
+  // save the config.
   if (isset($form_state['values']['machine_name'])) {
     $vocab_machine_name = $form_state['values']['machine_name'];
 
     // Store the status of this vocabulary based on user input.
-    $disable_status = $form_state['values']['disable_term_node_listings_status'];
+    $disable_status = $form_state['values']['disable_term_node_listings']['status'];
     config_set('taxonomy.vocabulary.' . $vocab_machine_name, 'settings.disable_node_listings', $disable_status);
   }
 }
