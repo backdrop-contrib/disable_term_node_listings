@@ -11,7 +11,10 @@ to more precisely control content and sorting.
 ## Configuration
 
 Disable term listings for a particular vocabulary by going to that vocabulary's
-configuration page.
+configuration page and clicking on the vertical tab for "Content listings".
+
+![Disable Term Content Listings](https://github.com/backdrop-contrib/disable_term_node_listings/blob/1.x-1.x/images/disable_term_node_listings.png "Disable Term Content Listings")
+
 
 ##Issues
 

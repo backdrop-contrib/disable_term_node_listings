@@ -205,7 +205,7 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
     $form['disable_term_node_listings'] = array(
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
-      '#title' => t('Node listings'),
+      '#title' => t('Content listings'),
       '#weight' => 5,
       '#tree' => TRUE,
       '#group' => 'additional_settings',
