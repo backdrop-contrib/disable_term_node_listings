@@ -1,5 +1,5 @@
-name = Disable Term Node Listings
-description = Disable the node listings on taxonomy term pages in selected vocabularies
+name = Disable Term Content Listings
+description = Disable the default content listings on taxonomy term pages in selected vocabularies
 type = module
 backdrop = 1.x
 

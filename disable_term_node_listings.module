@@ -1,9 +1,9 @@
 <?php
 /**
  * @file
- * The Term Disable Node Listings module allows a user to selectively
- * disable the node listing on taxonomy term pages on a vocabulary basis
- * on the edit vocabulary page.
+ * The Term Disable Content Listings module allows a user to selectively
+ * disable the default content listing on taxonomy term pages on a vocabulary
+ * basis on the edit vocabulary page.
  */
 
 /**
@@ -219,8 +219,8 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
       '#description' => t('This field controls the display of all terms in this vocabulary.'),
       '#default_value' => $disable_status,
       '#options' => array(
-        'default' => t('Use default node listings'),
-        'hide_listing' => t('Disable node listing for all terms'),
+        'default' => t('Use default content listings'),
+        'hide_listing' => t('Disable content listing for all terms'),
         '404' => t('Display 404 page'),
         '403' => t('Display 403 page'),
       ),
