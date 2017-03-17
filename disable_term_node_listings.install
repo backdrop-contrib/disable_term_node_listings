@@ -44,7 +44,7 @@ function disable_term_node_listings_requirements($phase) {
  */
 function disable_term_node_listings_install() {
   foreach (taxonomy_get_vocabularies() as $vocabulary) {
-    config_set('taxonomy.vocabulary.' . $vocabulary->machine_name, 'settings.disable_node_listings', 0);
+    config_set('taxonomy.vocabulary.' . $vocabulary->machine_name, 'settings.disable_node_listings', 'default');
   }
 }
 
@@ -64,7 +64,7 @@ function disable_term_node_listings_uninstall() {
  */
 function disable_term_node_listings_update_1000() {
   foreach (taxonomy_get_vocabularies() as $vocabulary) {
-    config_set('taxonomy.vocabulary.' . $vocabulary->machine_name, 'settings.disable_node_listings', update_variable_get('disable_term_node_listings_' . $vocabulary->machine_name, 0));
+    config_set('taxonomy.vocabulary.' . $vocabulary->machine_name, 'settings.disable_node_listings', update_variable_get('disable_term_node_listings_' . $vocabulary->machine_name, 'default'));
     update_variable_del('disable_term_node_listings_' . $vocabulary->machine_name);
   }
 }

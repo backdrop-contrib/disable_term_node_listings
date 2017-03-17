@@ -1,4 +1,4 @@
-#Disable Term Content Listings
+# Disable Term Content Listings
 
 ## Description
 
@@ -16,21 +16,21 @@ configuration page and clicking on the vertical tab for "Content listings".
 ![Disable Term Content Listings](https://github.com/backdrop-contrib/disable_term_node_listings/blob/1.x-1.x/images/disable_term_node_listings.png "Disable Term Content Listings")
 
 
-##Issues
+## Issues
 
 Bugs and Feature requests should be reported in the
 [Issue Queue](https://github.com/backdrop-contrib/disable_term_node_listings/issues)
 
-##Current Maintainers
+## Current Maintainers
 
 - [Laryn Kragt Bakker](https://github.com/laryn) - [CEDC.org](https://cedc.org)
 
-##Credits
+## Credits
 
 - Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn) - [CEDC.org](https://cedc.org).
 - Maintained for Drupal (as *Disable Term Node Listings*) by [Akeem Williams](https://www.drupal.org/u/akeemw).
 
-##License
+## License
 
 This project is GPL v2 software. See the 
 [LICENSE.txt](https://github.com/backdrop-contrib/disable_term_node_listings/blob/1.x-1.x/LICENSE.txt) 
