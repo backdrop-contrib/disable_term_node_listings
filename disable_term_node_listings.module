@@ -40,7 +40,7 @@ function disable_term_node_listings_menu_alter(&$items) {
  */
 function disable_term_node_listings_term_page($term) {
   // Check if the term that this vocabulary belongs to has listings disabled.
-  $disable_status = config_get('taxonomy.vocabulary.' . $term->machine_name, 'settings.disable_node_listings');
+  $disable_status = config_get('taxonomy.vocabulary.' . $term->vocabulary, 'settings.disable_node_listings');
 
   $term_hooks = _disable_term_node_listings_retrieve_term_menu_hooks();
   $heaviest_term_hook = _disable_term_node_listings_get_heaviest_term_menu_hook($term_hooks);
@@ -217,7 +217,9 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
       '#collapsible' => TRUE,
       '#weight' => 3,
       '#description' => t('This field controls the display of all terms in this vocabulary.'),
-      '#default_value' => $disable_status,
+      // If on the vocabulary edit form, then get status from config. If on the
+      // vocabulary add form, then default to "Use default node listings".
+      '#default_value' => isset($vocab_machine_name) ? $disable_status : 'default',
       '#options' => array(
         'default' => t('Use default content listings'),
         'hide_listing' => t('Disable content listing for all terms'),
