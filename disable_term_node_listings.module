@@ -44,7 +44,6 @@ function disable_term_node_listings_term_page($term) {
 
   $term_hooks = _disable_term_node_listings_retrieve_term_menu_hooks();
   $heaviest_term_hook = _disable_term_node_listings_get_heaviest_term_menu_hook($term_hooks);
-
   // If we have a callback available in the heaviest term menu hook that needs
   // files loaded let's get it loaded so that the function is available
   // to be called.
@@ -161,9 +160,11 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
  * @return array $heaviest_term_hook
  *   The last hook in order. This is the active menu alter hook.
  */
-function _disable_term_node_listings_get_heaviest_term_menu_hook($term_menu_hooks) {
+function _disable_term_node_listings_get_heaviest_term_menu_hook(array $term_menu_hooks) {
   $heaviest_term_hook = end($term_menu_hooks);
-  $heaviest_term_hook['#module'] = key($term_menu_hooks);
+  if (!empty($heaviest_term_hook)) {
+    $heaviest_term_hook['#module'] = key($term_menu_hooks);
+  }
 
   return $heaviest_term_hook;
 }
@@ -179,8 +180,7 @@ function _disable_term_node_listings_get_heaviest_term_menu_hook($term_menu_hook
  */
 function _disable_term_node_listings_get_heaviest_term_menu_hook_load_file($term_menu_hook) {
   if (!empty($term_menu_hook) && !empty($term_menu_hook['file'])) {
-    $file = DRUPAL_ROOT . '/' . $term_menu_hook['file path'] . '/' . $term_menu_hook['file'];
-
+    $file = BACKDROP_ROOT . '/' . $term_menu_hook['file path'] . '/' . $term_menu_hook['file'];
     if (is_file($file)) {
       require_once $file;
     }
