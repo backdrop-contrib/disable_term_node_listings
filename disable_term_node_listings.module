@@ -247,22 +247,3 @@ function _disable_term_node_listings_submit_handler($form, &$form_state) {
     config_set('taxonomy.vocabulary.' . $vocab_machine_name, 'settings.disable_node_listings', $disable_status);
   }
 }
-
-/**
- * Implements hook_taxonomy_vocabulary_delete().
- */
-function disable_term_node_listings_taxonomy_vocabulary_delete($vocabulary) {
-  // If the vocabulary gets deleted, clean up our variable as well.
-  variable_del('disable_term_node_listings_' . $vocabulary->machine_name);
-}
-
-/**
- * Implements hook_taxonomy_vocabulary_update().
- */
-function disable_term_node_listings_taxonomy_vocabulary_update($vocabulary) {
-  // If the vocabulary machine name changed
-  // delete the variable associated with the old name.
-  if ($vocabulary->old_machine_name != $vocabulary->machine_name) {
-    variable_del('disable_term_node_listings_' . $vocabulary->old_machine_name);
-  }
-}
