@@ -4,3 +4,5 @@ type = module
 backdrop = 1.x
 
 dependencies[] = taxonomy
+
+maintainers[] = laryn
