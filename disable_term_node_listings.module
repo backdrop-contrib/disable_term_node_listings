@@ -112,17 +112,16 @@ function disable_term_node_listings_term_page($term) {
  *   List of menu_alter_hooks that take over the term page.
  */
 function _disable_term_node_listings_retrieve_term_menu_hooks() {
-  $modules = module_implements('menu_alter');
-
   $term_hooks = array();
-
   if ($term_hooks_cache = cache_get('disable_term_node_listings_term_menu_hooks')) {
     $term_hooks = $term_hooks_cache->data;
   }
   else {
+    $modules = module_implements('menu_alter');
+    $items = module_invoke_all('menu');
+    unset($items['taxonomy/term/%taxonomy_term'], $items['taxonomy/term/%views_arg']);
     foreach ($modules as $module) {
       $function = $module . '_menu_alter';
-      $items = array();
 
       if (function_exists($function)) {
         // Extract the menu items from all modules so we can find
