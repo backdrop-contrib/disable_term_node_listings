@@ -65,12 +65,12 @@ function disable_term_node_listings_term_page($term) {
     break;
 
     case '404':
-      return MENU_NOT_FOUND;
+      return backdrop_deliver_page(MENU_NOT_FOUND);
 
     break;
 
     case '403':
-      return MENU_ACCESS_DENIED;
+      return backdrop_deliver_page(MENU_ACCESS_DENIED);
 
     break;
 
