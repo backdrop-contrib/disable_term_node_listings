@@ -119,7 +119,6 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
   else {
     $modules = module_implements('menu_alter');
     $items = module_invoke_all('menu');
-    unset($items['taxonomy/term/%taxonomy_term'], $items['taxonomy/term/%views_arg']);
     foreach ($modules as $module) {
       $function = $module . '_menu_alter';
 
@@ -127,15 +126,16 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
         // Extract the menu items from all modules so we can find
         // which ones have term alters.
         $function($items);
-
         if (isset($items['taxonomy/term/%taxonomy_term'])) {
           if ($module != 'disable_term_node_listings') {
             $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
           }
+          unset($items['taxonomy/term/%taxonomy_term']);
         }
         // Views uses a different argument.
         elseif (isset($items['taxonomy/term/%views_arg'])) {
           $term_hooks[$module] = $items['taxonomy/term/%views_arg'];
+          unset($items['taxonomy/term/%views_arg']);
         }
       }
     }
