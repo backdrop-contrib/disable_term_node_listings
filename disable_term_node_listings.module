@@ -112,31 +112,30 @@ function disable_term_node_listings_term_page($term) {
  *   List of menu_alter_hooks that take over the term page.
  */
 function _disable_term_node_listings_retrieve_term_menu_hooks() {
-  $modules = module_implements('menu_alter');
-
   $term_hooks = array();
-
   if ($term_hooks_cache = cache_get('disable_term_node_listings_term_menu_hooks')) {
     $term_hooks = $term_hooks_cache->data;
   }
   else {
+    $modules = module_implements('menu_alter');
+    $items = module_invoke_all('menu');
     foreach ($modules as $module) {
       $function = $module . '_menu_alter';
-      $items = array();
 
       if (function_exists($function)) {
         // Extract the menu items from all modules so we can find
         // which ones have term alters.
         $function($items);
-
         if (isset($items['taxonomy/term/%taxonomy_term'])) {
           if ($module != 'disable_term_node_listings') {
             $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
           }
+          unset($items['taxonomy/term/%taxonomy_term']);
         }
         // Views uses a different argument.
         elseif (isset($items['taxonomy/term/%views_arg'])) {
           $term_hooks[$module] = $items['taxonomy/term/%views_arg'];
+          unset($items['taxonomy/term/%views_arg']);
         }
       }
     }
