@@ -119,17 +119,17 @@ function _disable_term_node_listings_retrieve_term_menu_hooks() {
   else {
     $modules = module_implements('menu_alter');
     $items = module_invoke_all('menu');
+    unset($items['taxonomy/term/%taxonomy_term']);
+    unset($items['taxonomy/term/%views_arg']);
     foreach ($modules as $module) {
       $function = $module . '_menu_alter';
 
-      if (function_exists($function)) {
+      if (function_exists($function) && $module != 'disable_term_node_listings') {
         // Extract the menu items from all modules so we can find
         // which ones have term alters.
         $function($items);
         if (isset($items['taxonomy/term/%taxonomy_term'])) {
-          if ($module != 'disable_term_node_listings') {
-            $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
-          }
+          $term_hooks[$module] = $items['taxonomy/term/%taxonomy_term'];
           unset($items['taxonomy/term/%taxonomy_term']);
         }
         // Views uses a different argument.
@@ -178,7 +178,7 @@ function _disable_term_node_listings_get_heaviest_term_menu_hook(array $term_men
  *   Contents of a menu alter hook for a term page.
  */
 function _disable_term_node_listings_get_heaviest_term_menu_hook_load_file($term_menu_hook) {
-  if (!empty($term_menu_hook) && !empty($term_menu_hook['file'])) {
+  if (!empty($term_menu_hook) && !empty($term_menu_hook['file path']) && !empty($term_menu_hook['file'])) {
     $file = BACKDROP_ROOT . '/' . $term_menu_hook['file path'] . '/' . $term_menu_hook['file'];
     if (is_file($file)) {
       require_once $file;
@@ -225,7 +225,7 @@ function disable_term_node_listings_form_alter(&$form, $form_state, $form_id) {
         '404' => t('Display 404 page'),
         '403' => t('Display 403 page'),
       ),
-      //'#attributes' => array('class' => array('node-listings-option')),
+      // '#attributes' => array('class' => array('node-listings-option')),
     );
 
     $form['#submit'][] = '_disable_term_node_listings_submit_handler';
